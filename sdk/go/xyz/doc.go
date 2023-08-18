@@ -1,3 +1,3 @@
-// Package xyz exports types, functions, subpackages for provisioning xyz resources.
+// Package stacktags exports types, functions, subpackages for provisioning stacktags resources.
 //
-package xyz
+package stacktags

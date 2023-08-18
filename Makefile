@@ -1,6 +1,6 @@
 VERSION         := 0.0.1
 
-PACK            := xyz
+PACK            := stacktags
 PROJECT         := github.com/pulumi/pulumi-${PACK}
 
 PROVIDER        := pulumi-resource-${PACK}
@@ -22,27 +22,27 @@ ensure::
 
 # Provider
 build_provider:: ensure
-	cp ${SCHEMA_PATH} provider/cmd/${PROVIDER}/
-	cd provider/cmd/${PROVIDER}/ && \
+	cp ${SCHEMA_PATH} ${PACK}
+	cd ${PACK} && \
        		yarn install && \
-       		yarn tsc && \
+       		yarn run tsc && \
        		cp package.json schema.json ./bin && \
        		sed -i.bak -e "s/\$${VERSION}/$(VERSION)/g" bin/package.json
 
 install_provider:: PKG_ARGS := --no-bytecode --public-packages "*" --public
 install_provider:: build_provider
-	cd provider/cmd/${PROVIDER}/ && \
-		yarn run pkg . ${PKG_ARGS} --target node16 --output ../../../bin/${PROVIDER}
+	cd ${PACK} && \
+		yarn run pkg . ${PKG_ARGS} --target node16 --output ../bin/${PROVIDER}
 
 # builds all providers required for publishing
 dist:: PKG_ARGS := --no-bytecode --public-packages "*" --public
-dist:: build_provider
-	cd provider/cmd/${PROVIDER}/ && \
- 		yarn run pkg . ${PKG_ARGS} --target node16-macos-x64 --output ../../../bin/darwin-amd64/${PROVIDER} && \
- 		yarn run pkg . ${PKG_ARGS} --target node16-macos-arm64 --output ../../../bin/darwin-arm64/${PROVIDER} && \
- 		yarn run pkg . ${PKG_ARGS} --target node16-linuxstatic-x64 --output ../../../bin/linux-amd64/${PROVIDER} && \
- 		yarn run pkg . ${PKG_ARGS} --target node16-linuxstatic-arm64 --output ../../../bin/linux-arm64/${PROVIDER} && \
- 		yarn run pkg . ${PKG_ARGS} --target node16-win-x64 --output ../../../bin/windows-amd64/${PROVIDER}.exe
+dist:: install_provider
+	cd ${PACK} && \
+ 		yarn run pkg . ${PKG_ARGS} --target node16-macos-x64 --output ../bin/darwin-amd64/${PROVIDER} && \
+ 		yarn run pkg . ${PKG_ARGS} --target node16-macos-arm64 --output ../bin/darwin-arm64/${PROVIDER} && \
+ 		yarn run pkg . ${PKG_ARGS} --target node16-linuxstatic-x64 --output ../bin/linux-amd64/${PROVIDER} && \
+ 		yarn run pkg . ${PKG_ARGS} --target node16-linuxstatic-arm64 --output ../bin/linux-arm64/${PROVIDER} && \
+ 		yarn run pkg . ${PKG_ARGS} --target node16-win-x64 --output ../bin/windows-amd64/${PROVIDER}.exe
 	mkdir -p dist
 	tar --gzip -cf ./dist/pulumi-resource-${PACK}-v${VERSION}-linux-amd64.tar.gz README.md LICENSE -C bin/linux-amd64/ .
 	tar --gzip -cf ./dist/pulumi-resource-${PACK}-v${VERSION}-linux-arm64.tar.gz README.md LICENSE -C bin/linux-arm64/ .
@@ -54,7 +54,17 @@ dist:: build_provider
 
 gen_go_sdk::
 	rm -rf sdk/go
-	cd provider/cmd/${CODEGEN} && go run . go ../../../sdk/go ${SCHEMA_PATH}
+	cd provider-gen && go run . go ../sdk/go ${SCHEMA_PATH}
+	cd sdk && go mod tidy && cd -
+
+## Empty build target for Go
+build_go_sdk::
+	cd provider-gen && go run . go ../sdk/go ${SCHEMA_PATH}
+		cd sdk && go mod tidy && cd -
+# gen_go_sdk::
+# 	rm -rf sdk/go
+# 	pulumi package gen-sdk bin/${PROVIDER} --language go
+# 	cd sdk && go mod tidy && cd -
 
 ## Empty build target for Go
 build_go_sdk::
@@ -62,15 +72,20 @@ build_go_sdk::
 
 # .NET SDK
 
-gen_dotnet_sdk::
+gen_dotnet_sdk:: DOTNET_VERSION := $(shell pulumictl get version --language dotnet)
+gen_dotnet_sdk:: 
 	rm -rf sdk/dotnet
-	cd provider/cmd/${CODEGEN} && go run . dotnet ../../../sdk/dotnet ${SCHEMA_PATH}
+	pulumi package gen-sdk bin/${PROVIDER} --language dotnet
+	cd sdk/dotnet/&& \
+		echo "${DOTNET_VERSION}" >version.txt && \
+		dotnet build /p:Version=${DOTNET_VERSION}
 
-build_dotnet_sdk:: DOTNET_VERSION := ${VERSION}
+build_dotnet_sdk:: DOTNET_VERSION := $(shell pulumictl get version --language dotnet)
 build_dotnet_sdk:: gen_dotnet_sdk
 	cd sdk/dotnet/ && \
 		echo "${DOTNET_VERSION}" >version.txt && \
-		dotnet build /p:Version=${DOTNET_VERSION}
+		cp ../../README.md ../../LICENSE . && \
+		dotnet build /p:Version=${DOTNET_VERSION} 
 
 install_dotnet_sdk:: build_dotnet_sdk
 	rm -rf ${WORKING_DIR}/nuget
@@ -78,19 +93,19 @@ install_dotnet_sdk:: build_dotnet_sdk
 	find . -name '*.nupkg' -print -exec cp -p {} ${WORKING_DIR}/nuget \;
 
 
-# Node.js SDK
+#  Node.js SDK
 
 gen_nodejs_sdk::
 	rm -rf sdk/nodejs
-	cd provider/cmd/${CODEGEN} && go run . nodejs ../../../sdk/nodejs ${SCHEMA_PATH}
+	pulumi package gen-sdk ./bin/${PROVIDER} --language nodejs
 
 build_nodejs_sdk:: gen_nodejs_sdk
 	cd sdk/nodejs/ && \
-		yarn install && \
+		yarn install  && \
 		yarn run tsc --version && \
 		yarn run tsc && \
 		cp -R scripts/ bin && \
-		cp ../../README.md ../../LICENSE package.json yarn.lock ./bin/ && \
+		cp ../../README.md ../../LICENSE package.json ./bin/ && \
 		sed -i.bak -e "s/\$${VERSION}/$(VERSION)/g" ./bin/package.json && \
 		rm ./bin/package.json.bak
 
@@ -102,7 +117,7 @@ install_nodejs_sdk:: build_nodejs_sdk
 
 gen_python_sdk::
 	rm -rf sdk/python
-	cd provider/cmd/${CODEGEN} && go run . python ../../../sdk/python ${SCHEMA_PATH}
+	pulumi package gen-sdk bin/pulumi-resource-clouddns --language python
 	cp ${WORKING_DIR}/README.md sdk/python
 
 build_python_sdk:: PYPI_VERSION := ${VERSION}

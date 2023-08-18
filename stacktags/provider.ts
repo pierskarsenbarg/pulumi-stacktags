@@ -15,7 +15,8 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as provider from "@pulumi/pulumi/provider";
 
-import { StaticPage, StaticPageArgs } from "./staticPage";
+import { StackTagsArgs } from "./schema-types";
+import {StackTags} from "./stackTags";
 
 export class Provider implements provider.Provider {
     constructor(readonly version: string, readonly schema: string) { }
@@ -23,28 +24,24 @@ export class Provider implements provider.Provider {
     async construct(name: string, type: string, inputs: pulumi.Inputs,
         options: pulumi.ComponentResourceOptions): Promise<provider.ConstructResult> {
 
-        // TODO: Add support for additional component resources here.
         switch (type) {
-            case "xyz:index:StaticPage":
-                return await constructStaticPage(name, inputs, options);
+            case "stacktags:index:StaticPage":
+                return await constructStackTags(name, inputs, options);
             default:
                 throw new Error(`unknown resource type ${type}`);
         }
     }
 }
 
-async function constructStaticPage(name: string, inputs: pulumi.Inputs,
+async function constructStackTags(name: string, inputs: pulumi.Inputs,
     options: pulumi.ComponentResourceOptions): Promise<provider.ConstructResult> {
 
     // Create the component resource.
-    const staticPage = new StaticPage(name, inputs as StaticPageArgs, options);
+    const stacktags = new StackTags(name, inputs as StackTagsArgs, options);
 
     // Return the component resource's URN and outputs as its state.
     return {
-        urn: staticPage.urn,
-        state: {
-            bucket: staticPage.bucket,
-            websiteUrl: staticPage.websiteUrl,
-        },
+        urn: stacktags.urn,
+        state: {},
     };
 }

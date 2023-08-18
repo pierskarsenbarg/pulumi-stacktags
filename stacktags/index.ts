@@ -18,7 +18,10 @@ import { Provider } from "./provider";
 
 function main(args: string[]) {
     const schema: string = readFileSync(require.resolve("./schema.json"), {encoding: "utf-8"});
-    let version: string = require("./package.json").version;
+    const nodePackage: string = readFileSync(require.resolve("./package.json"), {encoding: "utf-8"});
+
+    let version: string = JSON.parse(nodePackage).version;
+
     // Node allows for the version to be prefixed by a "v",
     // while semver doesn't. If there is a v, strip it off.
     if (version.startsWith("v")) {

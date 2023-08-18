@@ -1,0 +1,24 @@
+{
+    "name": "@pierskarsenbarg/pulumi-stacktags",
+    "version": "${VERSION}",
+    "bin": "bin/index.js",
+    "dependencies": {
+        "@pulumi/pulumi": "^3.78.1",
+        "@pulumi/pulumiservice": "^0.10.1",
+        "json-schema-to-typescript": "^13.0.2"
+    },
+    "devDependencies": {
+        "@types/node": "^20.3.1",
+        "@typescript-eslint/eslint-plugin": "^5.59.11",
+        "@typescript-eslint/parser": "^5.59.11",
+        "eslint": "^8.42.0",
+        "pkg": "^5.6.0",
+        "typescript": "^4.0.0"
+    },
+    "license": "Apache-2.0",
+    "scripts": {
+        "lint": "eslint . --ext .ts",
+        "gen-types": "ts-node scripts/generate-provider-types.ts",
+        "gen-scripts": "curl https://raw.githubusercontent.com/pulumi/pulumi/master/pkg/codegen/schema/pulumi.json | json2ts -o scripts/pulumi-schema.d.ts --unreachableDefinitions --ignoreMinAndMaxItems"
+    }
+}

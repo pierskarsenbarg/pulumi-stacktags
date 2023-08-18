@@ -1,49 +1,47 @@
 {
-    "name": "xyz",
+    "name": "stacktags",
     "resources": {
-        "xyz:index:StaticPage": {
+        "stacktags:index:StackTags": {
             "isComponent": true,
+            "properties": {},
             "inputProperties": {
-                "indexContent": {
+                "organization": {
                     "type": "string",
-                    "description": "The HTML content for index.html."
-                }
-            },
-            "requiredInputs": [
-                "indexContent"
-            ],
-            "properties": {
-                "bucket": {
-                    "$ref": "/aws/v4.0.0/schema.json#/resources/aws:s3%2Fbucket:Bucket",
-                    "description": "The bucket resource."
+                    "description": "Optional organization that the stack belongs to. If this is not set, then the organization of the current stack will be used."
                 },
-                "websiteUrl": {
+                "project": {
                     "type": "string",
-                    "description": "The website URL."
+                    "description": "Optional project that the stack belongs to. If this is not set, then the project that the current stack belongs to will be used."
+                },
+                "stack": {
+                    "type": "string",
+                    "description": "Optional stack to apply tags to. If this is not set then the current stack will be used."
+                },
+                "configNamespace": {
+                    "type": "string",
+                    "description": "Optional if you're not using `<projectname>` as your namespace in your stack configuration you can set this here. If this is not set it will use the project name."
                 }
-            },
-            "required": [
-                "bucket",
-                "websiteUrl"
-            ]
+            }
         }
     },
     "language": {
         "csharp": {
+            "rootNamespace": "PiersKarsenbarg",
             "packageReferences": {
                 "Pulumi": "3.*",
-                "Pulumi.Aws": "5.*"
+                "Pulumi.PulumiService": "0.*"
             },
             "respectSchemaVersion": true
         },
         "go": {
             "generateResourceContainerTypes": true,
-            "importBasePath": "github.com/pulumi/pulumi-xyz/sdk/go/xyz",
+            "importBasePath": "github.com/pierskarsenbarg/pulumi-stacktags/sdk/go/stacktags",
             "respectSchemaVersion": true
         },
         "nodejs": {
+            "packageName": "@pierskarsenbarg/stacktags",
             "dependencies": {
-                "@pulumi/aws": "^5.0.0"
+                "@pulumi/pulumiservice": "^0.10.0"
             },
             "devDependencies": {
                 "typescript": "^3.7.0"
@@ -53,9 +51,10 @@
         "python": {
             "requires": {
                 "pulumi": ">=3.0.0,<4.0.0",
-                "pulumi-aws": ">=5.0.0,<6.0.0"
+                "pulumi-pulumiservice": "<1.0.0"
             },
-            "respectSchemaVersion": true
+            "respectSchemaVersion": true,
+            "packageName": "pierskarsenbarg_pulumi_stacktags"
         }
     }
 }

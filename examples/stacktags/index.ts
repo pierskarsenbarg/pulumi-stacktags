@@ -1,6 +1,6 @@
-import * as xyz from "@pulumi/xyz";
+import * as stacktags from "@pulumi/stacktags";
 
-const page = new xyz.StaticPage("page", {
+const page = new stacktags.StaticPage("page", {
     indexContent: "<html><body><p>Hello world!</p></body></html>",
 });
 
