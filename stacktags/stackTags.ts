@@ -1,29 +1,36 @@
-import * as pulumi from "@pulumi/pulumi";
-import * as pulumiservice from "@pulumi/pulumiservice";
+import {
+    ComponentResourceOptions, 
+    getProject, 
+    getStack, 
+    getOrganization,
+    Input, 
+    Config
+} from "@pulumi/pulumi";
+import {StackTag} from "@pulumi/pulumiservice";
 import * as schema from "./schema-types";
 // import { createHash } from "crypto";
 
-interface StackTag {
+interface Tag {
     Key: string
     Value: string
 }
 
-interface StackTagList {
-    Tags: StackTag[]
+interface TagList {
+    Tags: Tag[]
 }
 
 export class StackTags extends schema.StackTags {
-    constructor(name: string, args: schema.StackTagsArgs, opts: pulumi.ComponentResourceOptions = {}) {
+    constructor(name: string, args: schema.StackTagsArgs, opts: ComponentResourceOptions = {}) {
         super(name, args, opts);
 
-        const configNamespace: string = (args.configNamespace === undefined || args.configNamespace === null) ? pulumi.getProject() : args.configNamespace.toString();
-        const projectName: pulumi.Input<string> = (args.project === undefined || args.project === null) ? pulumi.getProject() : args.project;
-        const stackName: pulumi.Input<string> = (args.stack === undefined || args.stack === null) ? pulumi.getStack() : args.stack. toString();
-        const organization: pulumi.Input<string> = (args.organization === undefined || args.organization === null) ? pulumi.getOrganization() : args.organization;
+        const configNamespace: string = (args.configNamespace === undefined || args.configNamespace === null) ? getProject() : args.configNamespace.toString();
+        const projectName: Input<string> = (args.project === undefined || args.project === null) ? getProject() : args.project;
+        const stackName: Input<string> = (args.stack === undefined || args.stack === null) ? getStack() : args.stack. toString();
+        const organization: Input<string> = (args.organization === undefined || args.organization === null) ? getOrganization() : args.organization;
 
-        const config = new pulumi.Config(configNamespace);
+        const config = new Config(configNamespace);
 
-        const tags: StackTag[] = config.requireObject<StackTagList>("tags").Tags;
+        const tags: Tag[] = config.requireObject<TagList>("tags").Tags;
             // .sort((n1, n2) => {
             //     function hash(item: string) {
             //         return createHash('sha256').update(item).digest("hex");
@@ -41,7 +48,7 @@ export class StackTags extends schema.StackTags {
             // });
 
         for(let i = 0; i < tags.length; i++) {
-            new pulumiservice.StackTag(`${organization}-${projectName}-${stackName}-${tags[i].Key}`, {
+            new StackTag(`${organization}-${projectName}-${stackName}-${tags[i].Key}`, {
                 organization,
                 project: projectName,
                 stack: stackName,

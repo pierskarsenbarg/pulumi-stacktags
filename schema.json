@@ -41,6 +41,7 @@
         "nodejs": {
             "packageName": "@pierskarsenbarg/stacktags",
             "dependencies": {
+                "@pulumi/pulumi": "^3.0.0",
                 "@pulumi/pulumiservice": "^0.10.0"
             },
             "devDependencies": {

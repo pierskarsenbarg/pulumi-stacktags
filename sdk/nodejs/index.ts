@@ -10,18 +10,18 @@ export type Provider = import("./provider").Provider;
 export const Provider: typeof import("./provider").Provider = null as any;
 utilities.lazyLoad(exports, ["Provider"], () => require("./provider"));
 
-export { StaticPageArgs } from "./staticPage";
-export type StaticPage = import("./staticPage").StaticPage;
-export const StaticPage: typeof import("./staticPage").StaticPage = null as any;
-utilities.lazyLoad(exports, ["StaticPage"], () => require("./staticPage"));
+export { StackTagsArgs } from "./stackTags";
+export type StackTags = import("./stackTags").StackTags;
+export const StackTags: typeof import("./stackTags").StackTags = null as any;
+utilities.lazyLoad(exports, ["StackTags"], () => require("./stackTags"));
 
 
 const _module = {
     version: utilities.getVersion(),
     construct: (name: string, type: string, urn: string): pulumi.Resource => {
         switch (type) {
-            case "stacktags:index:StaticPage":
-                return new StaticPage(name, <any>undefined, { urn })
+            case "stacktags:index:StackTags":
+                return new StackTags(name, <any>undefined, { urn })
             default:
                 throw new Error(`unknown resource type ${type}`);
         }

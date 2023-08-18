@@ -1,13 +1,13 @@
 {
-    "name": "@pulumi/stacktags",
+    "name": "@pierskarsenbarg/stacktags",
     "version": "${VERSION}",
     "scripts": {
         "build": "tsc",
         "install": "node scripts/install-pulumi-plugin.js resource stacktags ${VERSION}"
     },
     "dependencies": {
-        "@pulumi/aws": "^5.0.0",
-        "@pulumi/pulumi": "^3.42.0"
+        "@pulumi/pulumi": "^3.0.0",
+        "@pulumi/pulumiservice": "^0.10.0"
     },
     "devDependencies": {
         "@types/node": "^14",

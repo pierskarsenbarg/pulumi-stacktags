@@ -25,7 +25,7 @@ export class Provider implements provider.Provider {
         options: pulumi.ComponentResourceOptions): Promise<provider.ConstructResult> {
 
         switch (type) {
-            case "stacktags:index:StaticPage":
+            case "stacktags:index:StackTags":
                 return await constructStackTags(name, inputs, options);
             default:
                 throw new Error(`unknown resource type ${type}`);
